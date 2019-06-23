@@ -24,11 +24,17 @@ class ConvAutoencoder(nn.Module):
             nn.MaxPool2d(2),
             nn.Conv2d(16, 8, 3, padding=1),
             nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(8, 4, 3, padding=1),
+            nn.ReLU(inplace=True),
             nn.MaxPool2d(2)
         )
 
         self.decoder = nn.Sequential(
-            nn.Conv2d(8, 8, 3, padding=1),
+            nn.Conv2d(4, 4, 3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.UpsamplingBilinear2d(scale_factor=2),
+            nn.Conv2d(4, 8, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.UpsamplingBilinear2d(scale_factor=2),
             nn.Conv2d(8, 16, 3, padding=1),
