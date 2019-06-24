@@ -19,29 +19,29 @@ class ConvAutoencoder(nn.Module):
         self.feature_maps = OrderedDict()
 
         self.encoder = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=3, out_channels=8, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2),
-            nn.Conv2d(16, 8, 3, padding=1),
+            nn.Conv2d(8, 16, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2),
-            nn.Conv2d(8, 4, 3, padding=1),
+            nn.Conv2d(16, 32, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2)
         )
 
         self.decoder = nn.Sequential(
-            nn.Conv2d(4, 4, 3, padding=1),
+            nn.Conv2d(32, 32, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.UpsamplingBilinear2d(scale_factor=2),
-            nn.Conv2d(4, 8, 3, padding=1),
+            nn.Conv2d(32, 16, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.UpsamplingBilinear2d(scale_factor=2),
-            nn.Conv2d(8, 16, 3, padding=1),
+            nn.Conv2d(16, 8, 3, padding=1),
             nn.ReLU(inplace=True),
             nn.UpsamplingBilinear2d(scale_factor=2),
-            nn.Conv2d(16, 3, 3, padding=1),
-            nn.Tanh()
+            nn.Conv2d(8, 3, 3, padding=1),
+            nn.Sigmoid()
         )
 
     def forward(self, x):
@@ -62,7 +62,7 @@ def collect_feature_maps(model):
             
             model.feature_maps[key] = feature_maps
     
-    for idx, layer in enumerate(model.encoder):    
+    for idx, layer in enumerate(model.encoder):
         # hook is applied at inference time (only on the encoder part)
         layer.register_forward_hook(partial(hook, key='conv2d_{}'.format(idx + 1)))
         
