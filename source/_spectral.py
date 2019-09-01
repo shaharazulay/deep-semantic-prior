@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import fftpack
+from sklearn.decomposition import PCA
 
 
 def _rgb2gray(img):
@@ -75,3 +76,14 @@ def apply_lpf(image):
     # Similarly with the columns:
     im_fft2[:, :, int(c*keep_fraction):int(c*(1-keep_fraction))] = 0
     return fftpack.ifft2(im_fft2).real
+    
+
+def apply_pca(image, n_components=1):
+    img_r = np.reshape(image, (image.shape[0], image.shape[1] * image.shape[2]))
+    
+    pca = PCA(n_components).fit(img_r)
+    img_c = pca.transform(img_r)
+
+    img_rec = pca.inverse_transform(img_c)
+    img_pca = np.reshape(img_rec, image.shape)    
+    return img_pca, np.sum(pca.explained_variance_ratio_)
